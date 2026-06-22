@@ -80,25 +80,6 @@
 
     .header { text-align: center; margin-bottom: 2.4rem; }
 
-    .logo-ring {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 68px; height: 68px;
-      border-radius: 50%;
-      background: linear-gradient(145deg, #fff8e8, #f5e6c3);
-      border: 2px solid var(--gold-lt);
-      font-size: 2rem;
-      margin-bottom: 1.2rem;
-      box-shadow: 0 4px 20px rgba(212,168,67,0.2);
-      animation: pulse 3s ease-in-out infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { box-shadow: 0 4px 20px rgba(212,168,67,0.2); }
-      50%       { box-shadow: 0 4px 30px rgba(212,168,67,0.45); }
-    }
-
     .header h1 {
       font-family: 'DM Serif Display', serif;
       font-size: 2rem;
@@ -175,16 +156,19 @@
       margin-bottom: 0.7rem;
     }
 
+    /* Stars: evenly distributed across full width */
     .stars {
       display: flex;
       flex-direction: row-reverse;
-      justify-content: flex-end;
-      gap: 0.3rem;
+      justify-content: space-between;
+      width: 100%;
     }
 
     .stars input { display: none; }
 
     .stars label {
+      flex: 1;
+      text-align: center;
       font-size: 3rem;
       color: var(--star-off);
       cursor: pointer;
@@ -209,65 +193,10 @@
       color: var(--muted);
       margin-top: 0.5rem;
       min-height: 1.1em;
+      text-align: center;
     }
 
-    .btn {
-      width: 100%;
-      margin-top: 1.8rem;
-      padding: 1rem 1.5rem;
-      background: var(--ink);
-      color: #fff;
-      border: none;
-      border-radius: 0.7rem;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.95rem;
-      font-weight: 600;
-      letter-spacing: 0.04em;
-      cursor: pointer;
-      position: relative;
-      overflow: hidden;
-      transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .btn::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, rgba(255,255,255,0.08), transparent);
-      pointer-events: none;
-    }
-
-    .btn:hover:not(:disabled) {
-      background: #2a2a4e;
-      box-shadow: 0 6px 24px rgba(26,26,46,0.22);
-      transform: translateY(-1px);
-    }
-
-    .btn:active:not(:disabled) { transform: scale(0.98); }
-
-    .btn:disabled {
-      background: #c5c0ba;
-      cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
-    }
-
-    .btn .spinner {
-      display: none;
-      width: 16px; height: 16px;
-      border: 2px solid rgba(255,255,255,0.4);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-      vertical-align: middle;
-      margin-right: 8px;
-    }
-
-    .btn.loading .spinner { display: inline-block; }
-    .btn.loading .btn-text { opacity: 0.7; }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; } }
 
     .toast {
       display: none;
@@ -281,56 +210,10 @@
       animation: fadeIn 0.3s ease;
     }
 
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; } }
-
     .toast.error {
       background: #fef2f2;
       color: #991b1b;
       border: 1px solid #fecaca;
-    }
-
-    .thankyou {
-      display: none;
-      text-align: center;
-      padding: 1rem 0;
-      animation: cardIn 0.5s cubic-bezier(0.22,1,0.36,1) both;
-    }
-
-    .thankyou .big-icon { font-size: 3.5rem; margin-bottom: 1rem; }
-
-    .thankyou h2 {
-      font-family: 'DM Serif Display', serif;
-      font-size: 1.8rem;
-      color: var(--ink);
-      margin-bottom: 0.6rem;
-    }
-
-    .thankyou p {
-      color: var(--muted);
-      font-size: 0.9rem;
-      line-height: 1.7;
-    }
-
-    .progress-bar {
-      height: 3px;
-      background: var(--border);
-      border-radius: 99px;
-      overflow: hidden;
-      margin-top: 1.5rem;
-    }
-
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--gold), #e8b84b);
-      width: 0%;
-      border-radius: 99px;
-      transition: width 0.1s linear;
-    }
-
-    .redirect-note {
-      font-size: 0.78rem;
-      color: var(--muted);
-      margin-top: 0.6rem;
     }
 
     @media (max-width: 500px) {
@@ -345,17 +228,16 @@
 <div class="card">
 
   <div class="header">
-    <!-- <div class="logo-ring">&#11088;</div> --> 
-    <img src="https://raw.githubusercontent.com/mithusan-glitch/Logos/refs/heads/main/Red_Rooster_Logo.png"
-         alt="Logo"
-         style="display:block;margin:0 auto 1.2rem;width:150px;height:150px;object-fit:contain;"/>
+    <img src="https://raw.githubusercontent.com/mithusan-glitch/Logos/refs/heads/main/BF_Logo-no_background.png"
+      alt="Logo"
+      style="display:block;margin:0 auto 1.2rem;width:150px;height:150px;object-fit:contain;"/>
     <h1>How was your<br/><em>experience?</em></h1>
     <p>Your feedback helps us serve you better.<br/>It only takes 10 seconds.</p>
   </div>
 
   <div class="rule"></div>
 
-  <form id="feedbackForm">
+  <div id="feedbackForm">
 
     <div class="field">
       <label class="label" for="name">Your Name <span class="opt">(optional)</span></label>
@@ -363,12 +245,12 @@
     </div>
 
     <div class="field">
-      <label class="label" for="phone">Phone Number</label>
-      <input type="tel" id="phone" placeholder="e.g. 0771234567" autocomplete="tel" inputmode="tel" required/>
+      <label class="label" for="phone">Phone Number <span class="opt">(optional)</span></label>
+      <input type="tel" id="phone" placeholder="e.g. 0449844642" autocomplete="tel" inputmode="tel"/>
     </div>
 
     <div class="field">
-      <span class="star-label">Rate your experience</span>
+      <span class="star-label">Tap a star to rate</span>
       <div class="stars" id="starGroup">
         <input type="radio" id="s5" name="rating" value="5"/>
         <label for="s5" title="Excellent">&#9733;</label>
@@ -381,112 +263,70 @@
         <input type="radio" id="s1" name="rating" value="1"/>
         <label for="s1" title="Terrible">&#9733;</label>
       </div>
-      <div class="star-hint" id="starHint">Tap a star to rate</div>
+      <div class="star-hint" id="starHint"></div>
     </div>
 
-    <button type="submit" class="btn" id="submitBtn">
-      <span class="spinner"></span>
-      <span class="btn-text">Submit Feedback</span>
-    </button>
-
-  </form>
+  </div>
 
   <div class="toast" id="toastBox"></div>
-
-  <div class="thankyou" id="thankyouBox">
-    <div class="big-icon">&#128591;</div>
-    <h2>Thank you!</h2>
-    <p>We appreciate your honest feedback.<br/>Our team will be in touch soon.</p>
-  </div>
-
-  <div class="thankyou" id="redirectBox">
-    <div class="big-icon">&#127775;</div>
-    <h2>Wonderful!</h2>
-    <p>Thank you for the great rating.<br/>Taking you to share your review&hellip;</p>
-    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-    <p class="redirect-note" id="redirectNote">Redirecting in 3s&hellip;</p>
-  </div>
 
 </div>
 
 <script>
-  // =============================================================
-  //  EDIT ONLY THESE TWO LINES
-  // =============================================================
-  const BACKEND_URL = "https://script.google.com/macros/s/AKfycbzsqWIImGyXm3HIJvsS3v-vtCDzAHIV_5vKHk-_Ak9d24q2pjBGSQwMk6TY-exmNMKtlg/exec";
-  const REVIEW_URL  = "https://search.google.com/local/writereview?placeid=ChIJGaT2dbmiEmsRLg_2XR6IN_s";
-  // =============================================================
-
-  const HIGH_RATING = 4; // 4 or 5 stars → redirect to review
+  const BACKEND_URL = "https://script.google.com/macros/s/AKfycbyHpc_o3xoI4wyVBxqpcXfSRyEoa7lPXBdrNeqhcDe64mYvoUV_zFW-_dKVIy0SCUgS_g/exec";
+  const REVIEW_URL     = "https://search.google.com/local/writereview?placeid=ChIJ1y8qGACvEmsRWMnXAfAcjzs";
+  const LOW_RATING_URL = "https://forms.gle/x6hSeuMXCeie5cMP9";
+  const HIGH_RATING = 4;
 
   const HINTS = { 1:"Terrible", 2:"Poor", 3:"Average", 4:"Good", 5:"Excellent" };
+
+  // Restrict phone input to digits and + only
+  document.getElementById('phone').addEventListener('input', function() {
+    this.value = this.value.replace(/[^0-9+]/g, '');
+  });
+
+  // Update hint text on hover/change
   document.querySelectorAll('input[name="rating"]').forEach(function(r) {
     r.addEventListener('change', function() {
       document.getElementById('starHint').textContent = HINTS[r.value] || '';
     });
   });
 
-  document.getElementById('feedbackForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    clearToast();
+  // Star click — phone is optional, so process immediately
+  document.querySelectorAll('.stars label').forEach(function(lbl) {
+    lbl.addEventListener('click', function() {
+      var phone = document.getElementById('phone').value.trim();
 
-    var name     = document.getElementById('name').value.trim();
-    var phone    = document.getElementById('phone').value.trim();
-    var ratingEl = document.querySelector('input[name="rating"]:checked');
+      // Use a tiny delay to let the radio value update before reading it
+      setTimeout(function() {
+        var ratingEl = document.querySelector('input[name="rating"]:checked');
+        if (!ratingEl) return;
 
-    if (!phone)    { showToast('Please enter your phone number.', 'error'); return; }
-    if (!ratingEl) { showToast('Please select a star rating.', 'error'); return; }
+        var rating = parseInt(ratingEl.value);
+        var name = document.getElementById('name').value.trim();
 
-    var rating = parseInt(ratingEl.value);
-    var btn    = document.getElementById('submitBtn');
-    btn.disabled = true;
-    btn.classList.add('loading');
-    btn.querySelector('.btn-text').textContent = 'Submitting...';
+        // Send to backend (fire and forget)
+        var formData = new FormData();
+        formData.append('name',   name);
+        formData.append('phone',  phone);
+        formData.append('rating', ratingEl.value);
+        fetch(BACKEND_URL, { method: 'POST', body: formData }).catch(function() {});
 
-    // Save to sheet in background — fire and forget
-    var formData = new FormData();
-    formData.append('name',   name);
-    formData.append('phone',  phone);
-    formData.append('rating', ratingEl.value);
-    fetch(BACKEND_URL, { method: 'POST', body: formData }).catch(function() {});
+        // Hide form
+        document.getElementById('feedbackForm').style.display = 'none';
 
-    if (rating >= HIGH_RATING) {
-      // HIGH rating — show countdown, then redirect
-      document.getElementById('feedbackForm').style.display = 'none';
-      document.getElementById('redirectBox').style.display  = 'block';
-      var fill    = document.getElementById('progressFill');
-      var note    = document.getElementById('redirectNote');
-      var elapsed = 0;
-      var total   = 3000;
-      var interval = setInterval(function() {
-        elapsed += 50;
-        fill.style.width = (elapsed / total * 100) + '%';
-        var remaining = Math.ceil((total - elapsed) / 1000);
-        note.textContent = 'Redirecting in ' + remaining + 's...';
-        if (elapsed >= total) {
-          clearInterval(interval);
+        // Blank the page to avoid a flash of content during redirect
+        document.body.innerHTML = '';
+        document.body.style.background = '#faf8f4';
+
+        if (rating >= HIGH_RATING) {
           window.location.href = REVIEW_URL;
+        } else {
+          window.location.href = LOW_RATING_URL;
         }
       }, 50);
-    } else {
-      // LOW rating — show thank you
-      document.getElementById('feedbackForm').style.display = 'none';
-      document.getElementById('thankyouBox').style.display  = 'block';
-    }
+    });
   });
-
-  function showToast(msg, type) {
-    var box = document.getElementById('toastBox');
-    box.textContent = msg;
-    box.className = 'toast ' + type;
-    box.style.display = 'block';
-  }
-
-  function clearToast() {
-    var box = document.getElementById('toastBox');
-    box.style.display = 'none';
-    box.textContent = '';
-  }
 </script>
 </body>
 </html>
