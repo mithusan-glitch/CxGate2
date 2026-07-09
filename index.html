@@ -310,7 +310,7 @@
         formData.append('name',   name);
         formData.append('phone',  phone);
         formData.append('rating', ratingEl.value);
-        fetch(BACKEND_URL, { method: 'POST', body: formData }).catch(function() {});
+        fetch(BACKEND_URL, { method: 'POST', body: formData, keepalive: true }).catch(function() {});
 
         // Hide form
         document.getElementById('feedbackForm').style.display = 'none';
