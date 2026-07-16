@@ -231,18 +231,6 @@
       border: 1px solid #fecaca;
     }
 
-    .toast.positive {
-      background: var(--gold-lt);
-      color: #7a5c14;
-      border: 1px solid #ecd48f;
-    }
-
-    .toast.negative {
-      background: #f3f1ec;
-      color: var(--ink);
-      border: 1px solid var(--border);
-    }
-
     @media (max-width: 500px) {
       .card { padding: 2.2rem 1.4rem 2.4rem; border-radius: 1rem; }
       .header h1 { font-size: 1.7rem; }
@@ -306,15 +294,13 @@
   const REVIEW_URL     = "https://www.tripadvisor.com/UserReviewEdit-g499079-d1143558-LOON_TAO-Dehiwala_Mount_Lavinia_Western_Province.html";
   const LOW_RATING_URL = "https://docs.google.com/forms/d/e/1FAIpQLSe92x3JDXBWenZnWDlT0CQ-zs6goLzEN3C7X1K4qLNTFFZdKw/viewform?usp=dialog";
   const HIGH_RATING = 4;
-  const SUBMIT_TIMEOUT_MS = 4000;  // don't make the user wait forever if the backend is slow/unreachable
-  const MIN_MESSAGE_MS   = 1300;   // ensure the status message is on screen long enough to read
+  const SUBMIT_TIMEOUT_MS = 4000; // don't make the user wait forever if the backend is slow/unreachable
 
-  const HINTS = { 1:"Terrible", 2:"Poor", 3:"Average", 4:"Good", 5:"Excellent" };
-
-  function messageFor(rating) {
+  // Message shown in the small text under the stars, in place of "Good"/"Excellent"/etc.
+  function hintFor(rating) {
     return rating >= HIGH_RATING
       ? "Thanks for the positive rating!"
-      : "Sorry for your experience, redirecting to the survey page..";
+      : "Sorry for your experience";
   }
 
   let submitting = false; // guard against double taps
@@ -327,7 +313,7 @@
   // Update hint text on hover/change
   document.querySelectorAll('input[name="rating"]').forEach(function(r) {
     r.addEventListener('change', function() {
-      document.getElementById('starHint').textContent = HINTS[r.value] || '';
+      document.getElementById('starHint').textContent = hintFor(parseInt(r.value, 10));
     });
   });
 
@@ -365,13 +351,6 @@
         document.getElementById('starGroup').classList.add('disabled');
         document.getElementById('spinner').style.display = 'block';
 
-        // Show the status message right away — it'll sit on screen for the
-        // submit + minimum display window below.
-        var toast = document.getElementById('toastBox');
-        toast.className = 'toast ' + (rating >= HIGH_RATING ? 'positive' : 'negative');
-        toast.textContent = messageFor(rating);
-        toast.style.display = 'block';
-
         var formData = new FormData();
         formData.append('name',   name);
         formData.append('phone',  phone);
@@ -386,12 +365,15 @@
           // but keepalive above gives the request its best chance to land first.
         });
 
-        // Wait for the submit to finish (capped at SUBMIT_TIMEOUT_MS) AND make sure
-        // the message stays visible for at least MIN_MESSAGE_MS before we leave.
-        await Promise.all([
-          Promise.race([submitPromise, timeoutPromise(SUBMIT_TIMEOUT_MS)]),
-          timeoutPromise(MIN_MESSAGE_MS)
-        ]);
+        // Wait for the submit to finish, but don't block the user longer than SUBMIT_TIMEOUT_MS
+        await Promise.race([submitPromise, timeoutPromise(SUBMIT_TIMEOUT_MS)]);
+
+        // Hide form
+        document.getElementById('feedbackForm').style.display = 'none';
+
+        // Blank the page to avoid a flash of content during redirect
+        document.body.innerHTML = '';
+        document.body.style.background = '#faf8f4';
 
         redirectFor(rating);
       }, 50);
