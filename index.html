@@ -123,8 +123,7 @@
       margin-left: 0.3rem;
     }
 
-    input[type="text"],
-    input[type="tel"] {
+    input[type="text"] {
       width: 100%;
       padding: 0.85rem 1rem;
       border: 1.5px solid var(--border);
@@ -245,8 +244,8 @@
     </div>
 
     <div class="field">
-      <label class="label" for="phone">Phone Number <span class="opt">(optional)</span></label>
-      <input type="tel" id="phone" placeholder="e.g. 0449844642" autocomplete="tel" inputmode="tel"/>
+      <label class="label" for="phone">Phone Number / Email <span class="opt">(optional)</span></label>
+      <input type="text" id="phone" placeholder="e.g. 0449844642 or you@example.com" autocomplete="tel email"/>
     </div>
 
     <div class="field">
@@ -273,17 +272,19 @@
 </div>
 
 <script>
-  const BACKEND_URL = "https://script.google.com/a/macros/businessfocus360.com/s/AKfycbwX5cIjUx34TtdzqnUqiPNBqT-THiRXOB3rUxrxVrIxPMbtarGyBJefIvh8soV7cQrbRQ/exec";
+  const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwwvNqvXzeUW-JYZvgqozOAZFaYe-oWsvexw55QWiY7XB0wZizjTC3_ak7qhUhldPBRWQ/exec";
   const REVIEW_URL     = "https://www.tripadvisor.com/UserReviewEdit-g499079-d1143558-LOON_TAO-Dehiwala_Mount_Lavinia_Western_Province.html";
   const LOW_RATING_URL = "https://docs.google.com/forms/d/e/1FAIpQLSe92x3JDXBWenZnWDlT0CQ-zs6goLzEN3C7X1K4qLNTFFZdKw/viewform?usp=dialog";
   const HIGH_RATING = 4;
 
   const HINTS = { 1:"Terrible", 2:"Poor", 3:"Average", 4:"Good", 5:"Excellent" };
 
-  // Restrict phone input to digits and + only
-  document.getElementById('phone').addEventListener('input', function() {
-    this.value = this.value.replace(/[^0-9+]/g, '');
-  });
+  // The "Phone Number / Email" field now accepts any characters, since it
+  // may hold a phone number OR an email address. No client-side filtering
+  // or validation is applied here — whatever the customer typed is sent
+  // to the backend as-is, and the backend decides whether it looks like a
+  // valid email before sending an auto-reply. An invalid/mistyped entry
+  // simply won't trigger an email — it never blocks saving or redirecting.
 
   // Update hint text on hover/change
   document.querySelectorAll('input[name="rating"]').forEach(function(r) {
@@ -292,10 +293,10 @@
     });
   });
 
-  // Star click — phone is optional, so process immediately
+  // Star click — contact field is optional, so process immediately
   document.querySelectorAll('.stars label').forEach(function(lbl) {
     lbl.addEventListener('click', function() {
-      var phone = document.getElementById('phone').value.trim();
+      var contact = document.getElementById('phone').value.trim();
 
       // Use a tiny delay to let the radio value update before reading it
       setTimeout(function() {
@@ -305,10 +306,12 @@
         var rating = parseInt(ratingEl.value);
         var name = document.getElementById('name').value.trim();
 
-        // Send to backend (fire and forget)
+        // Send to backend (fire and forget). The backend records the
+        // response to the sheet as before, and if "contact" is a valid
+        // email address it will also send a rating-based auto-reply.
         var formData = new FormData();
         formData.append('name',   name);
-        formData.append('phone',  phone);
+        formData.append('phone',  contact);
         formData.append('rating', ratingEl.value);
         fetch(BACKEND_URL, { method: 'POST', body: formData, keepalive: true }).catch(function() {});
 
