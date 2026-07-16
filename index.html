@@ -123,7 +123,8 @@
       margin-left: 0.3rem;
     }
 
-    input[type="text"] {
+    input[type="text"],
+    input[type="tel"] {
       width: 100%;
       padding: 0.85rem 1rem;
       border: 1.5px solid var(--border);
@@ -195,6 +196,21 @@
       text-align: center;
     }
 
+    /* Simple spinner shown while submitting */
+    .spinner {
+      display: none;
+      width: 34px;
+      height: 34px;
+      margin: 1.6rem auto 0;
+      border: 3px solid var(--border);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .stars.disabled label { pointer-events: none; opacity: 0.55; }
+
     @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; } }
 
     .toast {
@@ -244,8 +260,8 @@
     </div>
 
     <div class="field">
-      <label class="label" for="phone">Phone Number / Email <span class="opt">(optional)</span></label>
-      <input type="text" id="phone" placeholder="e.g. 0449844642 or you@example.com" autocomplete="tel email"/>
+      <label class="label" for="phone">Phone Number <span class="opt">(optional)</span></label>
+      <input type="tel" id="phone" placeholder="e.g. 0449844642" autocomplete="tel" inputmode="tel"/>
     </div>
 
     <div class="field">
@@ -267,24 +283,27 @@
 
   </div>
 
+  <div class="spinner" id="spinner"></div>
+
   <div class="toast" id="toastBox"></div>
 
 </div>
 
 <script>
-  const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwwvNqvXzeUW-JYZvgqozOAZFaYe-oWsvexw55QWiY7XB0wZizjTC3_ak7qhUhldPBRWQ/exec";
+  const BACKEND_URL = "https://script.google.com/a/macros/businessfocus360.com/s/AKfycbwX5cIjUx34TtdzqnUqiPNBqT-THiRXOB3rUxrxVrIxPMbtarGyBJefIvh8soV7cQrbRQ/exec";
   const REVIEW_URL     = "https://www.tripadvisor.com/UserReviewEdit-g499079-d1143558-LOON_TAO-Dehiwala_Mount_Lavinia_Western_Province.html";
   const LOW_RATING_URL = "https://docs.google.com/forms/d/e/1FAIpQLSe92x3JDXBWenZnWDlT0CQ-zs6goLzEN3C7X1K4qLNTFFZdKw/viewform?usp=dialog";
   const HIGH_RATING = 4;
+  const SUBMIT_TIMEOUT_MS = 4000; // don't make the user wait forever if the backend is slow/unreachable
 
   const HINTS = { 1:"Terrible", 2:"Poor", 3:"Average", 4:"Good", 5:"Excellent" };
 
-  // The "Phone Number / Email" field now accepts any characters, since it
-  // may hold a phone number OR an email address. No client-side filtering
-  // or validation is applied here — whatever the customer typed is sent
-  // to the backend as-is, and the backend decides whether it looks like a
-  // valid email before sending an auto-reply. An invalid/mistyped entry
-  // simply won't trigger an email — it never blocks saving or redirecting.
+  let submitting = false; // guard against double taps
+
+  // Restrict phone input to digits and + only
+  document.getElementById('phone').addEventListener('input', function() {
+    this.value = this.value.replace(/[^0-9+]/g, '');
+  });
 
   // Update hint text on hover/change
   document.querySelectorAll('input[name="rating"]').forEach(function(r) {
@@ -293,27 +312,56 @@
     });
   });
 
-  // Star click — contact field is optional, so process immediately
+  function timeoutPromise(ms) {
+    return new Promise(function(resolve) {
+      setTimeout(resolve, ms);
+    });
+  }
+
+  function redirectFor(rating) {
+    if (rating >= HIGH_RATING) {
+      window.location.href = REVIEW_URL;
+    } else {
+      window.location.href = LOW_RATING_URL;
+    }
+  }
+
+  // Star click — submit to backend FIRST, then redirect
   document.querySelectorAll('.stars label').forEach(function(lbl) {
     lbl.addEventListener('click', function() {
-      var contact = document.getElementById('phone').value.trim();
+      if (submitting) return;
 
-      // Use a tiny delay to let the radio value update before reading it
-      setTimeout(function() {
+      // Let the radio value update before reading it
+      setTimeout(async function() {
         var ratingEl = document.querySelector('input[name="rating"]:checked');
         if (!ratingEl) return;
 
-        var rating = parseInt(ratingEl.value);
-        var name = document.getElementById('name').value.trim();
+        submitting = true;
 
-        // Send to backend (fire and forget). The backend records the
-        // response to the sheet as before, and if "contact" is a valid
-        // email address it will also send a rating-based auto-reply.
+        var rating = parseInt(ratingEl.value, 10);
+        var name = document.getElementById('name').value.trim();
+        var phone = document.getElementById('phone').value.trim();
+
+        // Lock the UI while we submit
+        document.getElementById('starGroup').classList.add('disabled');
+        document.getElementById('spinner').style.display = 'block';
+
         var formData = new FormData();
         formData.append('name',   name);
-        formData.append('phone',  contact);
+        formData.append('phone',  phone);
         formData.append('rating', ratingEl.value);
-        fetch(BACKEND_URL, { method: 'POST', body: formData, keepalive: true }).catch(function() {});
+
+        var submitPromise = fetch(BACKEND_URL, {
+          method: 'POST',
+          body: formData,
+          keepalive: true // lets the request finish sending even if we navigate away right after
+        }).catch(function() {
+          // Swallow network/CORS errors — we still want to redirect either way,
+          // but keepalive above gives the request its best chance to land first.
+        });
+
+        // Wait for the submit to finish, but don't block the user longer than SUBMIT_TIMEOUT_MS
+        await Promise.race([submitPromise, timeoutPromise(SUBMIT_TIMEOUT_MS)]);
 
         // Hide form
         document.getElementById('feedbackForm').style.display = 'none';
@@ -322,11 +370,7 @@
         document.body.innerHTML = '';
         document.body.style.background = '#faf8f4';
 
-        if (rating >= HIGH_RATING) {
-          window.location.href = REVIEW_URL;
-        } else {
-          window.location.href = LOW_RATING_URL;
-        }
+        redirectFor(rating);
       }, 50);
     });
   });
