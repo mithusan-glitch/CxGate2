@@ -294,7 +294,7 @@
   const REVIEW_URL     = "https://www.tripadvisor.com/UserReviewEdit-g499079-d1143558-LOON_TAO-Dehiwala_Mount_Lavinia_Western_Province.html";
   const LOW_RATING_URL = "https://docs.google.com/forms/d/e/1FAIpQLSe92x3JDXBWenZnWDlT0CQ-zs6goLzEN3C7X1K4qLNTFFZdKw/viewform?usp=dialog";
   const HIGH_RATING = 4;
-  const SUBMIT_TIMEOUT_MS = 4000; // don't make the user wait forever if the backend is slow/unreachable
+  const SUBMIT_TIMEOUT_MS = 600; // keepalive already lets the POST finish in the background after we leave, so this is just a tiny safety cap
 
   // Message shown in the small text under the stars, in place of "Good"/"Excellent"/etc.
   function hintFor(rating) {
@@ -336,7 +336,7 @@
     lbl.addEventListener('click', function() {
       if (submitting) return;
 
-      // Let the radio value update before reading it
+      // Tiny tick to let the radio's checked value register before reading it
       setTimeout(async function() {
         var ratingEl = document.querySelector('input[name="rating"]:checked');
         if (!ratingEl) return;
@@ -376,7 +376,7 @@
         document.body.style.background = '#faf8f4';
 
         redirectFor(rating);
-      }, 50);
+      }, 0);
     });
   });
 </script>
